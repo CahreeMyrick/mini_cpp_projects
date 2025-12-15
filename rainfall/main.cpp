@@ -1,5 +1,7 @@
 #include <iostream>
 #include <cmath>
+#include <fstream>
+#include <vector>
 
 /*
 REQUIRMENTS
@@ -28,7 +30,7 @@ BUILD PROCEDURE
  */
 
 void read_console_data() {
-        
+   
 }
 
 void read_text_file_data() {
@@ -43,32 +45,58 @@ void display_data(float (&data)[3][2], int num_rows, std::string (&months)[3]) {
      }
 }
 
-void save_to_csv() {
+void save_to_csv(std::string filename, float(&data)[3][2], std::string (&months)[3] ) {
+    std::ofstream myFile(filename);
 
+    if (myFile.is_open()) {
+        myFile << "Month,Avg,Actual,Deviation\n"; // Header
+        for (int i = 0; i < 3; ++i) {
+            myFile << months[i] << "," << data[i][0] << "," << data[i][1] << "," << std::abs(data[i][1] - data[i][0]) << "\n";
+        }
+
+        myFile.close();
+    } else {
+        std::cerr << "Error opening file: " << filename << std::endl;
+    }
 }
 
 
 int main() {
-    std::string avg_rainfall_amount, actual_rainfall_amount;
-    std::cout << "Hello User! Starting with January, please enter the avg. "
-              << "monthly rainfall followed by the actual monthly rainfall "
-              << "this year separated by a space as such: 12 25. \n";
+    bool flag = true;
+    while (flag){
+        std::string avg_rainfall_amount, actual_rainfall_amount;
+        std::cout << "Hello User! Starting with January, please enter the avg. "
+                  << "monthly rainfall followed by the actual monthly rainfall "
+                  << "this year separated by a space as such: 12 25. \n";
 
-    
-    std::string months[3] = {"January", "February", "March"};
-    float  monthly_rainfall_data[3][2];
-    
-    for (int i = 0; i < 3; i++) {
-        std::cout << months[i] << ": ";
-        std::cin >> avg_rainfall_amount  >>  actual_rainfall_amount;
-        monthly_rainfall_data[i][0] = std::stof(avg_rainfall_amount);
-        monthly_rainfall_data[i][1] = std::stof(actual_rainfall_amount);
+        
+        std::string months[3] = {"January", "February", "March"};
+        float  monthly_rainfall_data[3][2];
+        
+        for (int i = 0; i < 3; i++) {
+            std::cout << months[i] << ": ";
+            std::cin >> avg_rainfall_amount  >>  actual_rainfall_amount;
+            monthly_rainfall_data[i][0] = std::stof(avg_rainfall_amount);
+            monthly_rainfall_data[i][1] = std::stof(actual_rainfall_amount);
+        }
+
+        std::cout << std::endl;
+
+        display_data(monthly_rainfall_data, 3, months);
+        
+
+        std::string input;
+        std::cout << "Type \"csv\" to create a csv file of the results. " << std::endl;
+        std::cin >> input;
+
+        if (input == "csv") {
+            std::string csv_name;
+            std::cout << "Enter the name of the csv file you want to create: ";
+            std::cin >> csv_name;
+            save_to_csv(csv_name, monthly_rainfall_data, months);
+         }
+
+        flag = false;
     }
-
-    std::cout << std::endl;
-
-    display_data(monthly_rainfall_data, 3, months);
-    
-
 	return 0;
 }
